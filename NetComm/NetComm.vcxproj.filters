@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\msg">
+      <UniqueIdentifier>{60725462-8964-42b5-bc3d-ea2b19f20e83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\net">
+      <UniqueIdentifier>{7307db08-0cc6-44ce-91b7-9c604de5215e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{932d92fd-bfe6-4ce6-a387-fa63f2caf463}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\msg">
+      <UniqueIdentifier>{0f23c5b1-67f2-4223-a277-bbfde481c5a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\net">
+      <UniqueIdentifier>{144d15a1-bcb4-4eb6-a75f-aeb2064304ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{0c4d8a31-70d2-4c7a-a5a8-4401983ee3c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="msg\Messenger.hpp">
+      <Filter>Header Files\msg</Filter>
+    </ClInclude>
+    <ClInclude Include="net\BindingFactory.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\IBinding.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\IStream.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\StreamListener.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\TcpAddress.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\TcpClient.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\TcpServer.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\TcpStream.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="net\WSAError.hpp">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Error.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GetOpt.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\ISyncObject.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\MemoryStream.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\ScopedArray.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\ScopedLock.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\SharedPtr.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\ThreadMutex.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\utils.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="msg\IMessage.hpp">
+      <Filter>Header Files\msg</Filter>
+    </ClInclude>
+    <ClInclude Include="msg\IMessageFactory.hpp">
+      <Filter>Header Files\msg</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\FileReader.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\FileWriter.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="util\Error.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GetOpt.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\ScopedLock.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\ThreadMutex.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="net\BindingFactory.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\StreamListener.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\TcpAddress.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\TcpClient.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\TcpServer.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\TcpStream.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="net\WSAError.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="msg\Messenger.cpp">
+      <Filter>Source Files\msg</Filter>
+    </ClCompile>
+    <ClCompile Include="util\FileWriter.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\FileReader.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
