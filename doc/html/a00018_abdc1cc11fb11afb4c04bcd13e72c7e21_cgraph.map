@@ -1,0 +1,8 @@
+<map id="msg::Messenger::onDataReceived" name="msg::Messenger::onDataReceived">
+<area shape="rect" id="node2" href="$a00026.html#ac0e4812d23a9bd62393c5ba6dc1239ea" title="Explicitly closes specified stream in case some higher level error occurs. " alt="" coords="293,5,429,46"/>
+<area shape="rect" id="node5" href="$a00008.html#ae140ddf6ca4d180601ef7941e89afceb" title="Creates a message instance by its type. " alt="" coords="284,70,439,111"/>
+<area shape="rect" id="node6" href="$a00026.html#a1620df5889914d5037e07be1c28a10cf" title="Use this method to access global singleton instance. " alt="" coords="293,135,429,177"/>
+<area shape="rect" id="node7" href="$a00009.html#a5048e8fe6874b5bb49e7f4f70d5b8c0c" title="Is called when a new message is received. " alt="" coords="275,201,448,242"/>
+<area shape="rect" id="node3" href="$a00026.html#a0c110f176068877f399ac021befa1d5a" title="Must NOT be executed under a lock. " alt="" coords="496,5,632,46"/>
+<area shape="rect" id="node4" href="$a00012.html#abe165b14106fc4dbcfa7e2ea259f8716" title="Is called when a stream has died. " alt="" coords="681,5,871,46"/>
+</map>

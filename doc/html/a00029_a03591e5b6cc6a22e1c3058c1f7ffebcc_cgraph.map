@@ -1,0 +1,5 @@
+<map id="net::TcpClient::bind" name="net::TcpClient::bind">
+<area shape="rect" id="node2" href="$a00028.html#a7325cd440517aab01f69ac261c59b74b" title="Returns host string. " alt="" coords="190,5,341,32"/>
+<area shape="rect" id="node3" href="$a00006.html#a34d0518a394551f98d00d716d243c41a" title="Stream connection event. " alt="" coords="193,57,338,98"/>
+<area shape="rect" id="node4" href="$a00028.html#a4c69308916c9153b7ecad2781670d37a" title="Returns port number. " alt="" coords="192,123,339,149"/>
+</map>

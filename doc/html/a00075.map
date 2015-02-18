@@ -1,0 +1,5 @@
+<map id="Service" name="Service">
+<area shape="rect" id="node2" href="$a00003.html" title="Delegate for stream creation events. " alt="" coords="5,5,157,32"/>
+<area shape="rect" id="node3" href="$a00007.html" title="Base interface for messenger event delegates. " alt="" coords="181,5,355,32"/>
+<area shape="rect" id="node4" href="$a00008.html" title="Base interface for service events handler. " alt="" coords="379,5,497,32"/>
+</map>

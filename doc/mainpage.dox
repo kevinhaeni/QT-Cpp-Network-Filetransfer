@@ -1,0 +1,349 @@
+/**
+\mainpage The mainpage documentation
+
+\par
+<H1>Netcomm library</H1>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h2>Overview</h2></P>
+<P CLASS="western">This library is a C++ layer built above Windows
+Sockets (TCP sockets particularly), but Windows Sockets is not the
+only transport layer that can be utilized for data transmission.
+Other implementations (based say on UDP) can be provided.</P>
+<P CLASS="western">Moreover above the simple transport layer, which
+provides abstracted streaming of data, a messenger service is
+implemented which provides generalized messaging functionality.</P>
+<P CLASS="western">Finally several specialized messages are
+implemented and a service for sending/receiving these messages.</P>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h2>Terminology</h2></P>
+<UL>
+	<LI><P CLASS="western">Address &ndash; common address string shared
+	between connecting parties</P>
+	<LI><P CLASS="western">Binding &ndash; can be server binding or
+	client binding. Correspondingly it is a server listening on an
+	address or a client connecting to this address.</P>
+	<LI><P CLASS="western">Stream &ndash; Transmission of low level data
+	as basic as bytes. Streams do not have any predefined length, but
+	streams are reliable as TCP connections which means UDP-based stream
+	implementation should implement some internal ordering of packets.</P>
+	<LI><P CLASS="western">Message &ndash; messages are similar to
+	streams and are built on top of streams except that they do have
+	predefined length and type. Messages of a similar type are not
+	obligated to have similar size, each message can have its own size,
+	but the size and type are known before a message is transmitted.</P>
+	<LI><P CLASS="western">Endpoint &ndash; some high level abstraction
+	of a peer. Not really a part of a shared library, rather a
+	particular implementation used in the <I>svc</I> component.</P>
+	<LI><P CLASS="western">Delegate &ndash; used in source code as an
+	alias for event sinks. Basically an interface implementation
+	assigned to a corresponding object in order to listen for events
+	from this objects.</P>
+</UL>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h2>Source Code</h2></P>
+<P CLASS="western">Source code is a Visual Studio 2008 solution which
+contains several projects:</P>
+<UL>
+	<LI><P CLASS="western"><I>interfaces</I><SPAN STYLE="font-style: normal">
+	&ndash; a collection of interfaces that need to be implemented in
+	order to extend the library, there are also some delegates in </SPAN><I>net</I><SPAN STYLE="font-style: normal">
+	and </SPAN><I>msg</I><SPAN STYLE="font-style: normal"> projects.
+	Probably they should be moved here, but they are tightly coupled
+	with objects they service for, thus are defined in corresponding
+	projects.</SPAN></P>
+	<LI><P CLASS="western"><I>net</I><SPAN STYLE="font-style: normal"> &ndash;
+	implementation of the </SPAN><I>net</I><SPAN STYLE="font-style: normal">
+	component</SPAN></P>
+	<LI><P CLASS="western"><I>msg</I><SPAN STYLE="font-style: normal"> &ndash;
+	implementation of the </SPAN><I>msg</I><SPAN STYLE="font-style: normal">
+	components</SPAN></P>
+	<LI><P CLASS="western"><I>svc</I><SPAN STYLE="font-style: normal"> &ndash;
+	sample service utilizing </SPAN><I>net</I><SPAN STYLE="font-style: normal">
+	and </SPAN><I>msg</I><SPAN STYLE="font-style: normal"> components</SPAN></P>
+	<LI><P CLASS="western"><I>client</I><SPAN STYLE="font-style: normal">
+	&ndash; client utilizing the service</SPAN></P>
+	<LI><P CLASS="western"><I>server</I><SPAN STYLE="font-style: normal">
+	&ndash; server utilizing the service</SPAN></P>
+	<LI><P CLASS="western"><I>util</I><SPAN STYLE="font-style: normal">
+	&ndash; collection of utility classes, most of them should be
+	substituted for more efficient implementations like
+	</SPAN><I>boost::shared_ptr</I><SPAN STYLE="font-style: normal">, or
+	</SPAN><I>boost::scoped_array</I><SPAN STYLE="font-style: normal">.
+	Also </SPAN><I>ThreadMutex</I><SPAN STYLE="font-style: normal"> and
+	</SPAN><I>ScopedLock</I><SPAN STYLE="font-style: normal"> are good
+	candidates for substitution by </SPAN><I>ACE</I><SPAN STYLE="font-style: normal">,
+	</SPAN><I>boost</I><SPAN STYLE="font-style: normal"> or even </SPAN><I>MFC
+	</I><SPAN STYLE="font-style: normal">classes.</SPAN></P>
+	<LI><P CLASS="western"><I>netcomm</I><SPAN STYLE="font-style: normal">
+	&ndash; unit tests for the library</SPAN></P>
+</UL>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h2>Components</h2></P>
+<P CLASS="western">There are three main components:</P>
+<UL>
+	<LI><P CLASS="western"><I>net</I> &ndash; implementation of raw data
+	streaming</P>
+	<LI><P CLASS="western"><I>msg</I> &ndash; messaging service</P>
+	<LI><P CLASS="western"><I>svc</I> &ndash; an application-specific
+	service utilizing functionality of the <I>net</I> and <I>msg</I>
+	components</P>
+</UL>
+<P CLASS="western">Each is built a top of a previous one.</P>
+<P STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h3>net</h3></P>
+<P CLASS="western">Main interfaces:</P>
+<UL>
+	<LI><P CLASS="western"><I>IBinding</I> &ndash; Two implementation
+	must be provided: for server and for the client binding. Server
+	implementation in its <I>bind()</I><SPAN STYLE="font-style: normal">
+	implementation must listen for incoming connections and actually
+	provide some acceptor-connector pattern implementation. Client
+	implementation must connect to the address provided. Both
+	implementations must create </SPAN><I>IStream</I><SPAN STYLE="font-style: normal">
+	instance and notify of its creation to an </SPAN><I>IBindingDelegate</I><SPAN STYLE="font-style: normal">
+	provided. After a binding is established and a stream is created
+	there's no difference between server and client side. All  library's
+	functionality disregards server vs client difference.</SPAN></P>
+	<LI><P CLASS="western"><I>IBindingDelegate</I><SPAN STYLE="font-style: normal">
+	&ndash; this interface must be implemented by a class listening for
+	new connections. Once a connection is established  (after server and
+	client </SPAN><I>IBinding</I><SPAN STYLE="font-style: normal">
+	implementations successfully </SPAN><I>bind() </I><SPAN STYLE="font-style: normal">to
+	the same address), a method of this interface are called to notify
+	the listening party of the new connection. This is the best place to
+	put a newly created stream under </SPAN><I>StreamListener</I><SPAN STYLE="font-style: normal">'s
+	control (see further).</SPAN></P>
+	<LI><P CLASS="western"><I>IStream &ndash;</I><SPAN STYLE="font-style: normal">
+	implementation is responsible for sending and receiving bytes over
+	an established connection. The receiving part is non-blocking so if
+	no data are available implementation must not wait for incoming
+	data, rather should return zero. Note, this differs from semantics
+	of Windows Socket's </SPAN><I>recv</I><SPAN STYLE="font-style: normal">
+	function.</SPAN></P>
+</UL>
+<P CLASS="western">Main classes:</P>
+<UL>
+	<LI><P CLASS="western"><I>TcpServer</I> &ndash; server-side
+	implementation of <SPAN STYLE="font-style: normal">the </SPAN><I>IBinding</I><SPAN STYLE="font-style: normal">
+	interface.</SPAN></P>
+	<LI><P CLASS="western"><I>TcpClient</I><SPAN STYLE="font-style: normal">
+	&ndash; client-side implementation of the </SPAN><I>IBinding</I><SPAN STYLE="font-style: normal">
+	interface.</SPAN></P>
+	<LI><P CLASS="western"><I>TcpStream</I><SPAN STYLE="font-style: normal">
+	&ndash; implements </SPAN><I>IStream</I><SPAN STYLE="font-style: normal">
+	data sendning and receiving methods over a TCP connection.</SPAN></P>
+	<LI><P CLASS="western"><I>BindingFactory</I><SPAN STYLE="font-style: normal">
+	&ndash; factory class to create bindings. Since only TCP connection
+	is utilized this factory is not really required for this
+	implementation, but can be required if a library is extended, say,
+	the way that bindings are established above bindings of other types.
+	Or in case dynamic binding type is determined at runtime (e.g. a
+	user chooses between a TCP binding or some other custom binding).</SPAN></P>
+	<LI><P CLASS="western"><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">IStreamListenerDelegate</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+	- </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+	event handler</SPAN></SPAN></SPAN></P>
+	<LI><P CLASS="western"><I>StreamListener</I><SPAN STYLE="font-style: normal">
+	&ndash; very important class. Despite of the long description
+	provided below its usage is pretty straitforward. If there's a
+	stream and a class interested in receiving events about this stream,
+	the class must implement </SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">IStreamListenerDelegate</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+	and register itself with a corresponding stream within
+	</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">.
+	Once registered, use </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener::writeStream()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+	method instead of direct </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">Istream::write()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">.
+	But devil is in details, thus detail follow.</SPAN></SPAN></SPAN></P>
+</UL>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h3>StreamListener</h3></P>
+<P CLASS="western"><I>StreamListener</I><SPAN STYLE="font-style: normal">
+is not intended to be sub-classed. Rather it is a class that listens
+for registered streams and reacts to incoming data by firing events
+to registered delegates. It is a singleton, which means there's only
+one instance of this class for a module (exe or dll).</SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal">It is a handy
+class to avoid going into a manual data listening loop both on server
+and client side. </SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+utilizes several threads to listen for incoming data. Number of
+threads is limited to number of processors (cores) on a system.
+Threads access streams in round-robin fashion by checking streams one
+by one and if data are available for some stream these data are
+pulled from that stream and an event is fired to a corresponding
+delegate.</SPAN></SPAN></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><B>Error
+handling with StreamListener</B></SPAN></I></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">There
+are constraints on stream usage imposed by possible errors and
+appropriate handling of these errors in regards to </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">.
+Since errors can encounter while receiving data, </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+is also responsible for notifying delegates about stream's death. If
+a stream is disconnected an event is fired to the same delegate
+listening for incoming data events. Since stream's death can be
+detected not only during data receiving but also while sending data,
+</SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+provides a special method for writing to a stream </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">writeStream()</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+which allows </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+to be aware of stream's death and be able to notify the same
+delegate. Thus any streams registered within </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+must send data by </SPAN></SPAN><I><SPAN STYLE="text-decoration: none">StreamListener::writeStream()</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none">
+method.</SPAN></SPAN></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><B>Registration
+of delegates</B></SPAN></I></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">Delegates
+for stream events must implement </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">IStreamListenerDelegate</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+interface methods. A delegate interested in event for a particular
+stream calls </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener::addDelegate()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+method which 1) registers a stream within </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">,</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">2)
+registers a delegate listening for events for the specified stream.</SPAN></SPAN></SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">Streams
+and delegates can be registered within </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener:</SPAN></SPAN></I></P>
+<UL>
+	<LI><P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">before
+	</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener::run()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+	is called</SPAN></SPAN></SPAN></P>
+	<LI><P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">after
+	it has stopped running</SPAN></SPAN></SPAN></P>
+	<LI><P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">while
+	it is running</SPAN></SPAN></SPAN></P>
+</UL>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">but
+cannot be registered between </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">cancelRun()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is called and before </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">run()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+has completed execution. Basically since all delegates are
+unregistered and streams are destroyed when </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+stops, there's no point in adding new delegates at this moment.</SPAN></SPAN></SPAN></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><B>StreamListener
+delegates lifetime</B></SPAN></I></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">IStreamListenerDelegate</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+implementations must be alive all the time they are a subject to
+event notification. All events to delegates are fired while 
+</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is running thus delegates must be alive until </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener::run()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+stops execution. </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener::writeStream()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+can also detect stream's death but all delegates are unregistered
+after </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is stopped, thus there's no one to notify about stream's death. So if
+</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is stopped, do not send data through it. But it is OK to send data
+after </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+has a delegate registered for the corresponding stream.</SPAN></SPAN></SPAN></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+starts listening for incoming data when its </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">run()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+method is called. This method is blocking, it does not exit until
+</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+stops all threads listening for incoming data. In order to stop
+listening </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">cancelRun()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+method should be called. Obviously from some other thread, say from
+one of the delegate event handlers or from a UI thread if </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">run()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is not executed on the UI thread (otherwise it would be a bad idea
+since a UI thread would be blocked).</SPAN></SPAN></SPAN></P>
+<P CLASS="western"><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">cancelRun()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+notifies </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+that it should be stopped, but it might take time to stop. In order
+to wait for </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+to actually stop </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">joinRun()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+method should be called. It blocks until </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+is stopped. Grounding for such separation is that a decision that
+</SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+should stop can be made withing of </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">IStreamListenerDelegate</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+methods, thus </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">cancelRun()</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+could be called from within delegate's method which in turn is
+executed from the </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">.
+Thus if </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+waits for a delegate's method to finish, while the method is waiting
+for the </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+to stop, it causes a deadlock straight away.</SPAN></SPAN></SPAN></P>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h2>Binding lifetime</h2></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">Streams
+are not owned by bindings, streams are owned and their lifetime is
+managed by </SPAN></SPAN></SPAN><I><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">StreamListener.</SPAN></SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-weight: normal">
+Bindings are also not owned by streams. This design decision is
+questionable, probably streams should own their bindings, but
+currently they don't. If a binding is destroyed a stream dies. Thus a
+client and a server must keep corresponding bindings alive until a
+stream dies.</SPAN></SPAN></SPAN></P>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h3>msg</h3></P>
+<P CLASS="western">Main interfaces:</P>
+<UL>
+	<LI><P CLASS="western">IMessage &ndash; implementation of a message.
+	Every message has a type. Every implementation must be able to
+	serialize its data into a stream and to deserialize its data from a
+	stream.</P>
+	<LI><P CLASS="western"><I>IBindingDelegate</I> &ndash; handles
+	stream creation event. Despite it is named the same way as an
+	interface in the <I>net</I><SPAN STYLE="font-style: normal">
+	component, and is in fact to be implemented to handle the same
+	stream creation event, it differs in its semantics because
+	implementation is not required to put created stream under
+	</SPAN><I>StreamListener</I><SPAN STYLE="font-style: normal">'s
+	control, rather it is a good place to register </SPAN><I>ImessengerDelegate</I><SPAN STYLE="font-style: normal">-s
+	for a newly created streams.</SPAN></P>
+	<LI><P CLASS="western"><I>IMessengerDelegate</I><SPAN STYLE="font-style: normal">
+	&ndash; similar to </SPAN><I>IStreamListenerDelegate</I><SPAN STYLE="font-style: normal">
+	in regards to semantics of events received, but it instead of row
+	data it receives notifications of high-level events.</SPAN></P>
+	<LI><P CLASS="western"><I>IMessageFactory</I><SPAN STYLE="font-style: normal">
+	&ndash; implementation of this interface must be provided in order
+	to create messages by their types.</SPAN></P>
+</UL>
+<P CLASS="western">Main classes:</P>
+<UL>
+	<LI><P CLASS="western"><I>Messenger</I><SPAN STYLE="font-style: normal">
+	&ndash; supplied with a </SPAN><I>IMessageFactory</I><SPAN STYLE="font-style: normal">
+	implementation and a </SPAN><I>IBindingDelegate</I><SPAN STYLE="font-style: normal">
+	implementation it handles messages transmitted over the streams and
+	notifies registered delegates.</SPAN></P>
+</UL>
+<P CLASS="western"><I>Messenger</I><SPAN STYLE="font-style: normal">
+is similar to </SPAN><I>StreamListener</I><SPAN STYLE="font-style: normal">,
+but unlike the latter it works with messages as opposed to raw stream
+data. Messages are high-level abstractions of application specific
+data sent over network.</SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal">When sending
+messages over streams </SPAN><I>Messenger</I><SPAN STYLE="font-style: normal">
+uses a message header which is 8 bytes long. First 4 bytes are
+reserved for message type, second 4 bytes &ndash; are for message
+payload length. Thus message payload length cannot exceed 4Gb.</SPAN></P>
+<P ALIGN=LEFT STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h3>svc</h3></P>
+<P CLASS="western">Actually this is a sample implementation of
+interfaces described above and utilization of <I>StreamListener</I><SPAN STYLE="font-style: normal">
+and </SPAN><I>Messenger</I><SPAN STYLE="font-style: normal"> classes.</SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal">Main interfaces:</SPAN></P>
+<UL>
+	<LI><P CLASS="western"><I>IserviceDelegate</I><SPAN STYLE="font-style: normal">
+	&ndash; client and server implement this interface to get
+	notifications about newly connected endpoints or disconnected
+	endpoints and also directory listing responses.</SPAN></P>
+</UL>
+<P CLASS="western"><SPAN STYLE="font-style: normal">Main classes:</SPAN></P>
+<UL>
+	<LI><P CLASS="western"><I>SvcMsgFactory</I><SPAN STYLE="font-style: normal">
+	&ndash; message factory for service-specific messages
+	(</SPAN><I>IMessageFactory </I><SPAN STYLE="font-style: normal">implementation).
+	Creates messages supported by the service.</SPAN></P>
+	<LI><P CLASS="western"><I>MessageIdentity</I><SPAN STYLE="font-style: normal">
+	&ndash; a message that is sent when a connection is established. It
+	contains endpoint id. The message is sent to notify the other
+	connection party about endpoint identity.</SPAN></P>
+	<LI><P CLASS="western"><I>MessageRequestDir</I><SPAN STYLE="font-style: normal">
+	&ndash; a message that is sent to an endpoint to request a directory
+	contents</SPAN></P>
+	<LI><P CLASS="western"><I>MessageResponseDir</I><SPAN STYLE="font-style: normal">
+	&ndash; a response message that contains a listing of files in a
+	directory</SPAN></P>
+	<LI><P CLASS="western"><I>Service</I><SPAN STYLE="font-style: normal">
+	&ndash; this class should be made a singleton in a real world
+	scenario, but for simplicity is left as is. It provides even higher
+	level of abstraction by providing specialized methods and
+	notifications for asynchronous directory listing requests. This
+	class utilizes the full stack including bindings, </SPAN><I>StreamListener</I><SPAN STYLE="font-style: normal">
+	and </SPAN><I>Messenger</I><SPAN STYLE="font-style: normal"> and can
+	be used as an example of application service implementations.</SPAN></P>
+</UL>
+<P CLASS="western"><BR><BR>
+</P>
+
+*/

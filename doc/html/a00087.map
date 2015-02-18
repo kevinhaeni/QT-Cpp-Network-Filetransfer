@@ -1,0 +1,4 @@
+<map id="msg::Messenger" name="msg::Messenger">
+<area shape="rect" id="node2" href="$a00004.html" title="Delegate for binding events. " alt="" coords="5,5,149,32"/>
+<area shape="rect" id="node3" href="$a00010.html" title="Base interface for stream event delegates. " alt="" coords="174,5,364,32"/>
+</map>
