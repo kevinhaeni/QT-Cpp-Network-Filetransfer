@@ -4,161 +4,162 @@
 #include <map>
 #include <vector>
 #include <Windows.h>
+#include "util/utils.h"
 #include <util/ThreadMutex.hpp>
-#include <util/SharedPtr.hpp>
+#include "util/ScopedLock.hpp"
 #include "IStream.hpp"
 
 namespace net {
 
-/// Base interface for stream event delegates
-struct IStreamListenerDelegate
-{
-	virtual ~IStreamListenerDelegate() {}
+	/// Base interface for stream event delegates
+	struct IStreamListenerDelegate
+	{
+		virtual ~IStreamListenerDelegate() {}
+
+		/**
+		* Is called when data are available on a stream.
+		* writeStream must be used to write().
+		*/
+		virtual void onDataReceived(
+			::net::IStream::TId streamId,
+			const unsigned char* buf,
+			size_t bufSize) = 0;
+
+		/// Is called when a stream has died
+		virtual void onStreamDied(::net::IStream::TId streamId) = 0;
+	};
 
 	/**
-	 * Is called when data are available on a stream.
-	 * writeStream must be used to write().
-	 */
-	virtual void onDataReceived(
-		::net::IStream::TId streamId,
-		const unsigned char* buf,
-		size_t bufSize) = 0;
+	* Singleton reactor/dispatcher.
+	* Global listener of stream incoming data.
+	*/
+	class StreamListener
+	{
+		/// Explicit instantiation is forbidden
+		StreamListener();
 
-	/// Is called when a stream has died
-	virtual void onStreamDied(::net::IStream::TId streamId) = 0;
-};
+	public:
+		~StreamListener();
 
-/**
- * Singleton reactor/dispatcher.
- * Global listener of stream incoming data.
- */
-class StreamListener
-{
-	/// Explicit instantiation is forbidden
-	StreamListener();
+		/// Use this method to access global singleton instance
+		static StreamListener& instance();
 
-public:
-	~StreamListener();
+		/**
+		* Adds delegate_ as an observer of stream's incoming data events
+		*/
+		void addDelegate(TStreamPtr stream, IStreamListenerDelegate* delegate_);
 
-	/// Use this method to access global singleton instance
-	static StreamListener& instance();
+		/**
+		* Runs listening loop.
+		* Call to this function blocks until stop (from some other thread or from within a delegate) is called.
+		*/
+		void run();
 
-	/**
-	 * Adds delegate_ as an observer of stream's incoming data events
-	 */
-	void addDelegate(TStreamPtr stream, IStreamListenerDelegate* delegate_);
+		/**
+		* Call this method to request run() to stop listening to events.
+		* This method is non-blocking and can be used from within the IStreamListenerDelegate's methods.
+		* Call joinRun() to wait for run() to complete (but not from IStreamListenerDelegate's methods).
+		*/
+		void cancelRun();
 
-	/**
-	 * Runs listening loop.
-	 * Call to this function blocks until stop (from some other thread or from within a delegate) is called.
-	 */
-	void run();
+		/**
+		* Waits for the stop request to complete.
+		* Do not call this method from within of any IStreamListenerDelegate's methods, it will cause a deadlock.
+		*/
+		void joinRun();
 
-	/**
-	 * Call this method to request run() to stop listening to events.
-	 * This method is non-blocking and can be used from within the IStreamListenerDelegate's methods.
-	 * Call joinRun() to wait for run() to complete (but not from IStreamListenerDelegate's methods).
-	 */
-	void cancelRun();
+		/**
+		* This method should be used when writing to watched stream instead of IStream::write()
+		*	in order to let the StreamListener instance handle stream errors.
+		* This call is blocking.
+		*/
+		void writeStream(::net::IStream::TId stream, const unsigned char* buf, size_t count);
 
-	/**
-	 * Waits for the stop request to complete.
-	 * Do not call this method from within of any IStreamListenerDelegate's methods, it will cause a deadlock.
-	 */
-	void joinRun();
+		/**
+		* Explicitly closes specified stream in case some higher level error occurs.
+		*/
+		void closeStream(::net::IStream::TId streamId, const std::string& errorDescription);
 
-	/**
-	 * This method should be used when writing to watched stream instead of IStream::write()
-	 *	in order to let the StreamListener instance handle stream errors.
-	 * This call is blocking.
-	 */
-	void writeStream(::net::IStream::TId stream, const unsigned char* buf, size_t count);
+	private:
+		static util::ThreadMutex s_sync;
+		static std::auto_ptr<StreamListener> s_instance;
 
-	/**
-	 * Explicitly closes specified stream in case some higher level error occurs.
-	 */
-	void closeStream(::net::IStream::TId streamId, const std::string& errorDescription);
+		/// StreamListener internal state
+		enum {
+			LISTENER_STOPPED = 0,
+			LISTENER_RUNNING,
+			LISTENER_STOPPING
+		} m_state;
 
-private:
-	static util::ThreadMutex s_sync;
-	static std::auto_ptr<StreamListener> s_instance;
+		// Flag and event to indicate that stop() is called
+		bool m_stopped;
+		HANDLE m_hEventStopping;
+		HANDLE m_hEventStopped;
 
-	/// StreamListener internal state
-	enum {
-		LISTENER_STOPPED = 0,
-		LISTENER_RUNNING,
-		LISTENER_STOPPING
-	} m_state;
+		/// Maximum allowed number of threads
+		size_t m_maxWorkerThreadCount;
 
-	// Flag and event to indicate that stop() is called
-	bool m_stopped;
-	HANDLE m_hEventStopping;
-	HANDLE m_hEventStopped;
+		/// Index of a next to check stream
+		size_t m_streamIndex;
 
-	/// Maximum allowed number of threads
-	size_t m_maxWorkerThreadCount;
+		typedef std::map<
+			::net::IStream::TId,	// Stream ID
+			bool					// Busy flag
+		> TStreamsBusy;
 
-	/// Index of a next to check stream
-	size_t m_streamIndex;
+		/**
+		* Busy flags for each stream,
+		* true indicates that this stream is being read,
+		*	thus cannot be read by another worker thread.
+		*/
+		TStreamsBusy m_streamsBusy;
 
-	typedef std::map<
-		::net::IStream::TId,	// Stream ID
-		bool					// Busy flag
-	> TStreamsBusy;
+		typedef std::vector<HANDLE> THandles;
+		THandles m_workerThreads;
 
-	/**
-	 * Busy flags for each stream,
-	 * true indicates that this stream is being read,
-	 *	thus cannot be read by another worker thread.
-	 */
-	TStreamsBusy m_streamsBusy;
+		typedef std::map<
+			::net::IStream::TId,
+			TStreamPtr
+		> TStreams;
 
-	typedef std::vector<HANDLE> THandles;
-	THandles m_workerThreads;
+		TStreams m_streams;
 
-	typedef std::map<
-		::net::IStream::TId,
-		TStreamPtr
-	> TStreams;
-	
-	TStreams m_streams;
+		typedef std::vector<IStreamListenerDelegate*> TDelegates;
 
-	typedef std::vector<IStreamListenerDelegate*> TDelegates;
+		typedef std::map<
+			::net::IStream::TId,	// Stream ID
+			TDelegates				// List of its delegates
+		> TStreamDelegates;
 
-	typedef std::map<
-		::net::IStream::TId,	// Stream ID
-		TDelegates				// List of its delegates
-	> TStreamDelegates;
+		TStreamDelegates m_streamDelegates;
 
-	TStreamDelegates m_streamDelegates;
+		/// Creates a worker thread. Must be executed under a sync.
+		void spawnWorkerThread();
 
-	/// Creates a worker thread. Must be executed under a sync.
-	void spawnWorkerThread();
+		/// Worker thread start routine
+		static DWORD WINAPI workerThreadFunc(LPVOID param);
 
-	/// Worker thread start routine
-	static DWORD WINAPI workerThreadFunc(LPVOID param);
+		/// Worker routine, runs on multiple threads
+		void listenStreams();
 
-	/// Worker routine, runs on multiple threads
-	void listenStreams();
+		/**
+		* Must NOT be executed under a lock. Acquires a lock itself.
+		* Notifies all delegates of a stream error and removes the stream from a list of listened streams.
+		*/
+		void streamDied(::net::IStream::TId, const std::string& errorDescription);
 
-	/**
-	 * Must NOT be executed under a lock. Acquires a lock itself.
-	 * Notifies all delegates of a stream error and removes the stream from a list of listened streams.
-	 */
-	void streamDied(::net::IStream::TId, const std::string& errorDescription);
+		/**
+		* Must be executed under a lock.
+		* Gets next stream (as identified by m_strewamIndex) in a round-robin fashion.
+		* Returns NULL pointer if no streams available.
+		*/
+		TStreamPtr getNextStream(TDelegates& delegates, bool& indexReset);
 
-	/**
-	 * Must be executed under a lock.
-	 * Gets next stream (as identified by m_strewamIndex) in a round-robin fashion.
-	 * Returns NULL pointer if no streams available.
-	 */
-	TStreamPtr getNextStream(TDelegates& delegates, bool& indexReset);
-
-	/**
-	 * Must be executed under a lock.
-	 * Looks up a stream by its ID.
-	 */
-	TStreamPtr getStreamById(::net::IStream::TId streamId) const;
-};
+		/**
+		* Must be executed under a lock.
+		* Looks up a stream by its ID.
+		*/
+		TStreamPtr getStreamById(::net::IStream::TId streamId) const;
+	};
 
 } // namespace net

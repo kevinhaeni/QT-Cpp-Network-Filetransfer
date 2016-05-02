@@ -37,6 +37,7 @@ FileTransferWindow::FileTransferWindow(const ServicePtr& service, const std::str
 	connect(ui.btnRequestDir, SIGNAL(clicked()), this, SLOT(onRequestDirClicked()));
 	connect(ui.btnDownloadFile, SIGNAL(clicked()), this, SLOT(onDownloadFileClicked()));
 	connect(ui.btnUploadFile, SIGNAL(clicked()), this, SLOT(onUploadFileClicked()));
+	connect(ui.btnExecuteFile, SIGNAL(clicked()), this, SLOT(onExecuteFileClicked()));
 }
 
 FileTransferWindow::~FileTransferWindow()
@@ -162,7 +163,8 @@ void FileTransferWindow::onRequestDirClicked()
 
 	try
 	{
-		m_service->requestDir(m_endpoint, strDir.toStdString());
+		std::wstring strDirUTF16 = std::wstring((wchar_t*)strDir.unicode(), strDir.length());
+		m_service->requestDir(m_endpoint, strDirUTF16);
 		m_currentRemoteDir = strDir;
 	}
 	catch (const std::exception& x)
@@ -184,7 +186,10 @@ void FileTransferWindow::onDownloadFileClicked()
 
 	// File was selected
 	QString remoteFileName = m_currentRemoteDir + "/" + items.front()->text();
-	startFileDownload(remoteFileName.toStdString(), m_fileSystemModel->rootPath().toStdString());
+	std::wstring remoteFileNameUTF16 = std::wstring((wchar_t*)remoteFileName.unicode(), remoteFileName.length());
+	std::wstring rootPathUTF16 = std::wstring((wchar_t*)m_fileSystemModel->rootPath().unicode(), m_fileSystemModel->rootPath().length());
+
+	startFileDownload(remoteFileNameUTF16, rootPathUTF16);
 }
 
 void FileTransferWindow::onUploadFileClicked()
@@ -204,8 +209,28 @@ void FileTransferWindow::onUploadFileClicked()
 		::MessageBoxA(NULL, "Select local file", "Error", MB_ICONERROR);
 		return;
 	}
+	std::wstring absolutePathUTF16 = std::wstring((wchar_t*)m_fileSystemModel->fileInfo(index).absoluteFilePath().unicode(), m_fileSystemModel->fileInfo(index).absoluteFilePath().length());
+	startFileUpload(absolutePathUTF16);
+}
 
-	startFileUpload(m_fileSystemModel->fileInfo(index).absoluteFilePath().toStdString());
+
+void FileTransferWindow::onExecuteFileClicked()
+{
+	// Get current selected file
+	QList<QListWidgetItem*> items = ui.lwDirRemote->selectedItems();
+	if (items.empty() || items.front()->data(Qt::UserRole).toBool())
+	{
+		// Nothing or directory were selected
+		::MessageBoxA(NULL, "Select remote file", "Error", MB_ICONERROR);
+		return;
+	}
+
+	// File was selected
+	QString remoteFileName = m_currentRemoteDir + "/" + items.front()->text();
+
+	std::wstring remoteFileNameUTF16 = std::wstring((wchar_t*)remoteFileName.unicode(), remoteFileName.length());
+
+	startFileExecution(remoteFileNameUTF16);
 }
 
 void FileTransferWindow::endpointDisconnect()
@@ -243,8 +268,8 @@ void FileTransferWindow::updateDir()
 	ui.lwDirRemote->clear();
 
 	// Split items to separate arrays by type
-	std::vector<std::string> dirs;
-	std::vector<std::string> files;
+	std::vector<std::wstring> dirs;
+	std::vector<std::wstring> files;
 
 	for (auto item : m_dirContent)
 	{
@@ -264,14 +289,14 @@ void FileTransferWindow::updateDir()
 
 	for (auto name : dirs)
 	{
-		QListWidgetItem* item = new QListWidgetItem(dirIcon, QString::fromStdString(name));
+		QListWidgetItem* item = new QListWidgetItem(dirIcon, QString::fromUtf16(name.c_str()));
 		item->setData(Qt::UserRole, true);
 		ui.lwDirRemote->addItem(item);
 	}
 
 	for (auto name : files)
 	{
-		QListWidgetItem* item = new QListWidgetItem(fileIcon, QString::fromStdString(name));
+		QListWidgetItem* item = new QListWidgetItem(fileIcon, QString::fromUtf16(name.c_str()));
 		ui.lwDirRemote->addItem(item);
 	}
 }
@@ -288,16 +313,16 @@ void FileTransferWindow::updateFile(qlonglong position, qlonglong total)
 	ui.progressBar->setValue(static_cast<int>(progress));
 }
 
-void FileTransferWindow::startFileDownload(const std::string& remoteFileName, const std::string& localPath)
+void FileTransferWindow::startFileDownload(const std::wstring& remoteFileName, const std::wstring& localPath)
 {
 	ui.btnDownloadFile->setEnabled(false);
 	ui.btnUploadFile->setEnabled(false);
 	ui.btnRequestDir->setEnabled(false);
 
 	m_remoteFileName = remoteFileName;
-	QFileInfo info(QString::fromStdString(remoteFileName));
-	std::string fileName = info.fileName().toStdString();
-	m_localFileName = localPath + "/" + fileName;
+	QFileInfo info(QString::fromUtf16(remoteFileName.c_str()));
+	std::wstring fileNameUTF16 = std::wstring((wchar_t*)info.fileName().unicode(), info.fileName().length());
+	m_localFileName = localPath + L"/" + fileNameUTF16;
 
 	FileRequest request;
 	request.m_fileName = remoteFileName;
@@ -306,16 +331,19 @@ void FileTransferWindow::startFileDownload(const std::string& remoteFileName, co
 	m_service->requestFile(m_endpoint, request);
 }
 
-void FileTransferWindow::startFileUpload(const std::string& localFileName)
+void FileTransferWindow::startFileUpload(const std::wstring& localFileName)
 {
 	ui.btnDownloadFile->setEnabled(false);
 	ui.btnUploadFile->setEnabled(false);
 	ui.btnRequestDir->setEnabled(false);
 
 	m_localFileName = localFileName;
-	QFileInfo info(QString::fromStdString(localFileName));
-	std::string fileName = info.fileName().toStdString();
-	m_remoteFileName = m_currentRemoteDir.toStdString() + "/" + fileName;
+	QFileInfo info(QString::fromUtf16(localFileName.c_str()));
+	//std::string fileName = info.fileName().toStdString();
+	std::wstring fileNameUTF16 = std::wstring((wchar_t*)info.fileName().unicode(), info.fileName().length());
+	std::wstring currentRemoteDirUTF16 = std::wstring((wchar_t*)m_currentRemoteDir.unicode(), m_currentRemoteDir.length());
+
+	m_remoteFileName = currentRemoteDirUTF16 + L"/" + fileNameUTF16;
 
 	if (!m_fileReader.open(m_localFileName))
 	{
@@ -342,6 +370,17 @@ void FileTransferWindow::startFileUpload(const std::string& localFileName)
 
 	m_service->uploadFile(m_endpoint, chunk);
 }
+
+
+void FileTransferWindow::startFileExecution(const std::wstring& remoteFileName)
+{
+	ui.btnDownloadFile->setEnabled(false);
+	ui.btnUploadFile->setEnabled(false);
+	ui.btnRequestDir->setEnabled(false);
+
+	m_service->executeFile(m_endpoint, remoteFileName);
+}
+
 
 void FileTransferWindow::stopFileTransmission()
 {

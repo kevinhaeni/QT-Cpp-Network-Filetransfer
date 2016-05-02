@@ -1,6 +1,9 @@
 #pragma once
 
-#include <util/SharedPtr.hpp>
+#include <memory>
+#include "util/utils.h"
+#include "util/ThreadMutex.hpp"
+#include "util/ScopedLock.hpp"
 
 namespace net {
 
@@ -26,6 +29,6 @@ struct IStream
 	virtual void write(const unsigned char* buf, size_t count) = 0;
 };
 
-typedef ::util::SharedPtr<IStream> TStreamPtr;
+typedef std::shared_ptr<IStream> TStreamPtr;
 
 } // namespace net

@@ -69,9 +69,6 @@
     <ClCompile Include="..\Protocol\MessageRequestFile.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Protocol\MessageRequestSysInfo.cpp">
-      <Filter>Source Files\protocol</Filter>
-    </ClCompile>
     <ClCompile Include="..\Protocol\MessageResponseDir.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
@@ -91,6 +88,9 @@
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
     <ClCompile Include="..\Protocol\MessageUploadFileReply.cpp">
+      <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Protocol\MessageGeneric.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,6 +149,9 @@
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
     <ClInclude Include="..\Protocol\MessageUploadFileReply.hpp">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Protocol\MessageGeneric.hpp">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,17 +1,18 @@
-#include "Service.hpp"
+﻿#include "Service.hpp"
 
 #include <protocol/MessageIdentity.hpp>
 #include <protocol/MessageRequestDir.hpp>
 #include <protocol/MessageResponseDir.hpp>
 #include <protocol/MessageRequestFile.hpp>
 #include <protocol/MessageResponseFile.hpp>
-#include <protocol/MessageRequestSysInfo.hpp>
 #include <protocol/MessageResponseSysInfo.hpp>
 #include <protocol/MessageUploadFile.hpp>
 #include <protocol/MessageUploadFileReply.hpp>
 #include <protocol/SvcMsgFactory.hpp>
 
 #include "Logger.hpp"
+#include <Protocol/MessageGeneric.hpp>
+#include "SysInfoCollector.hpp"
 
 namespace {
 	// Size of transmitting block of file
@@ -30,42 +31,43 @@ namespace
 std::vector<std::string> getSysInfo()
 {
 	std::vector<std::string> result;
-	result.push_back("Hostname:");
+	result.push_back("Hostname: фсдф");
 	result.push_back("IP-Address:");
 	result.push_back("Operating-System:");
 
 	return result;
 }
 
-TDirItems getDirectoryContent(const std::string& dir)
+TDirItems getDirectoryContent(const std::wstring& dir)
 {
 	TDirItems content;
 	
-	WIN32_FIND_DATAA fd;
+	WIN32_FIND_DATAW fd;
 	memset(&fd, 0, sizeof(fd));
 
-	std::string mask = dir;
+	std::wstring mask = dir;
 	size_t len = mask.length();
 	if (0 < len &&
 		mask[len - 1] != '\\' &&
 		mask[len - 1] != '/')
 	{
-		mask += "\\";
+		mask += L"\\";
 	}
-	mask += "*.*";
+	mask += L"*.*";
 
-	HANDLE h = ::FindFirstFileA(mask.c_str(), &fd);
+	std::wstring wMask(std::begin(mask), std::end(mask));
+	HANDLE h = ::FindFirstFileW(wMask.c_str(), &fd);
 	if (INVALID_HANDLE_VALUE != h)
 	{
 		do {
-			if (strcmp(fd.cFileName, ".") == 0)
+			if (wcscmp(fd.cFileName, L".") == 0)
 				continue;
 
 			DirItem item;
 			item.m_isDir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 			item.m_name = fd.cFileName;
 			content.push_back(item);
-		} while (::FindNextFileA(h, &fd));
+		} while (::FindNextFileW(h, &fd));
 
 		::FindClose(h);
 	}
@@ -171,7 +173,7 @@ Service::onStreamCreated(net::IStream::TId streamId)
 	msg::Messenger& messenger = msg::Messenger::instance();
 
 	messenger.addDelegate(streamId, this);
-	messenger.sendMessage(streamId, new MessageIdentity);
+	messenger.sendMessage(streamId, std::make_shared<MessageIdentity>());
 }
 
 void
@@ -217,7 +219,8 @@ Service::onMessageReceived(
 	}
 	else if (MessageRequestDir* msgRequestDir = dynamic_cast<MessageRequestDir*>(m))
 	{
-		MessageResponseDir* msgResponse = new MessageResponseDir();
+		std::shared_ptr<MessageResponseDir> msgResponse = std::make_shared<MessageResponseDir>();
+
 		msgResponse->m_content = getDirectoryContent(msgRequestDir->m_dir);
 
 		msg::Messenger::instance().sendMessage(streamId, msgResponse);
@@ -226,15 +229,45 @@ Service::onMessageReceived(
 	{
 		requestFile(streamId, *msgRequestFile);
 	}
-	else if (MessageRequestSysInfo* msgRequestSysInfo = dynamic_cast<MessageRequestSysInfo*>(m))
-	{
-		MessageResponseSysInfo* msgResponse = new MessageResponseSysInfo(::getSysInfo());
-
-		msg::Messenger::instance().sendMessage(streamId, msgResponse);
-	}
 	else if (MessageUploadFile* msgUploadFile = dynamic_cast<MessageUploadFile*>(m))
 	{
 		uploadFile(streamId, *msgUploadFile);
+	}
+	else if (MessageGeneric* genericMessage = dynamic_cast<MessageGeneric*>(m))
+	{
+		switch (genericMessage->m_commandType)
+		{
+			case MessageGeneric::REQSYSINFO:
+				{		
+					std::shared_ptr<MessageResponseSysInfo> msgResponse = std::make_shared<MessageResponseSysInfo>(SysInfoCollector::collect());
+					msg::Messenger::instance().sendMessage(streamId, msgResponse);
+				}
+				break;
+			case MessageGeneric::REQFILEEXEC:
+				{
+					std::string file = genericMessage->m_params.front();
+					// TODO: execute file
+					/*std::wstring wFile = std::wstring(file.begin(), file.end());
+					LPWSTR sw = wFile;
+
+					STARTUPINFO si;
+					PROCESS_INFORMATION pi;
+					CreateProcess(TEXT("Proccess"),
+						sw,
+						NULL,
+						NULL,
+						TRUE,
+						HIGH_PRIORITY_CLASS,
+						NULL,
+						TEXT("D:\\Programme\\wc3tv\\"),
+						&si,
+						&pi)*/
+				}
+				break;
+			default:
+				break;
+				// do nothing
+		}
 	}
 	else
 	{
@@ -244,7 +277,7 @@ Service::onMessageReceived(
 
 void Service::requestFile(net::IStream::TId streamId, const MessageRequestFile& msg)
 {
-	MessageResponseFile* response = new MessageResponseFile();
+	std::shared_ptr<MessageResponseFile> response = std::make_shared<MessageResponseFile>();
 	FileChunk& chunk = response->m_response;
 	chunk.m_fileName = msg.m_request.m_fileName;
 
@@ -288,7 +321,7 @@ void Service::uploadFile(net::IStream::TId streamId, const MessageUploadFile& ms
 		if (chunk.m_fileSize <= m_fileWriter.size())
 			m_fileWriter.close();
 	}
-	MessageUploadFileReply* response = new MessageUploadFileReply();
+	std::shared_ptr<MessageUploadFileReply> response = std::make_shared<MessageUploadFileReply>();
 	response->m_ok = ok;
 
 	msg::Messenger::instance().sendMessage(streamId, response);

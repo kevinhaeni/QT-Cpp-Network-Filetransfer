@@ -14,12 +14,13 @@ FileReader::~FileReader()
 	close();
 }
 
-bool FileReader::open(const std::string& name)
+bool FileReader::open(const std::wstring& name)
 {
+
 	if (!name.empty() && (m_name != name))
 	{
 		close();
-		if (fopen_s(&m_file, name.c_str(), "rb") == 0)
+		if (_wfopen_s(&m_file, name.c_str(), L"rb") == 0)
 		{
 			m_name = name;
 			// Get the file size

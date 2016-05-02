@@ -12,12 +12,9 @@ class BindingFactory;
  */
 class TcpServer : public IBinding
 {
-	friend class BindingFactory;
-
+public:
 	/// Must be created only by means of BindingFactory
 	TcpServer();
-
-public:
 	~TcpServer();
 
 	/**

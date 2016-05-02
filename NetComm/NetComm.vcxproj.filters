@@ -77,9 +77,6 @@
     <ClInclude Include="util\ScopedLock.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="util\SharedPtr.hpp">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
     <ClInclude Include="util\ThreadMutex.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>

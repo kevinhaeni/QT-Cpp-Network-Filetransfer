@@ -5,6 +5,7 @@
 #include "IMessage.hpp"
 #include "IMessageFactory.hpp"
 
+
 namespace msg {
 
 /**

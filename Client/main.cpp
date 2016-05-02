@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <string.h>
 #include <wchar.h>
 #include <atlconv.h>
@@ -13,6 +13,7 @@
 #pragma comment(lib, "NetComm.lib")
 
 #define K_REG_VALUE_NAME _T("KevinNetComm")
+#pragma execution_character_set("utf-8")
 
 namespace {
 

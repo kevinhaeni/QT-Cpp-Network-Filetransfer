@@ -5,7 +5,7 @@
 
 #pragma warning(disable: 4996)
 
-#define KMSG_INITIAL_DATA_BUF_SIZE (1024UL * 1024UL * 128UL)
+#define KMSG_INITIAL_DATA_BUF_SIZE (1024UL * 1024UL * 32UL)
 
 #ifndef NDEBUG
 

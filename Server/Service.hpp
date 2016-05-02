@@ -45,13 +45,16 @@ public:
 	void deleteDelegate(IServiceDelegate* delegate_);
 
 	/// Sends dir content request to the specified endpoint
-	void requestDir(const std::string& endpointId, const std::string& dir);
+	void requestDir(const std::string& endpointId, const std::wstring& dir);
 
 	/// Sends file request to the specified endpoint
 	void requestFile(const std::string& endpointId, const FileRequest& request);
 
 	/// Send chunk of file to upload
 	void uploadFile(const std::string& endpointId, const FileChunk& chunk);
+
+	/// Requests the execution of a remote file
+	void executeFile(const std::string& endpointId, const std::wstring& remoteFile);
 
 	/// Sends sys info request to the specified endpoint
 	void requestSysInfo(const std::string& endpointId);

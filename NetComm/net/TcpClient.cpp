@@ -41,7 +41,7 @@ TcpClient::bind(
 	if (SOCKET_ERROR == ::connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)))
 		throw WSAError();
 
-	TStreamPtr stream = new TcpStream(sockfd);
+	TStreamPtr stream = std::make_shared<TcpStream>(sockfd);
 
 	if (delegate_)
 		delegate_->onStreamCreated(stream);

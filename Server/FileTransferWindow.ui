@@ -222,6 +222,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="btnExecuteFile">
+         <property name="text">
+          <string>Execute File</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

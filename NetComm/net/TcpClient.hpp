@@ -11,12 +11,10 @@ class BindingFactory;
  */
 class TcpClient : public IBinding
 {
-	friend class BindingFactory;
-
-	/// Must be created only by means of BindingFactory
-	TcpClient();
 
 public:
+	/// Must be created only by means of BindingFactory
+	TcpClient();
 	~TcpClient();
 
 	/**

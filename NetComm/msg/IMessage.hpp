@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <util/utils.h>
-#include <util/SharedPtr.hpp>
+#include <memory>
 #include <util/MemoryStream.hpp>
 
 namespace msg {
@@ -47,6 +47,6 @@ private:
 	util::T_UI4 m_typeId;
 };
 
-typedef util::SharedPtr<IMessage> TMessagePtr;
+typedef std::shared_ptr<IMessage> TMessagePtr;
 
 } // namespace msg

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,14 +18,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfAtl>false</UseOfAtl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfAtl>false</UseOfAtl>
@@ -51,6 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;../NetComm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -86,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Protocol\DataTypes.hpp" />
+    <ClInclude Include="..\Protocol\MessageGeneric.hpp" />
     <ClInclude Include="..\Protocol\MessageIdentity.hpp" />
     <ClInclude Include="..\Protocol\MessageRequestDir.hpp" />
     <ClInclude Include="..\Protocol\MessageRequestFile.hpp" />
@@ -98,13 +100,14 @@
     <ClInclude Include="..\Protocol\SvcMsgFactory.hpp" />
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="Service.hpp" />
+    <ClInclude Include="SysInfoCollector.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Protocol\DataTypes.cpp" />
+    <ClCompile Include="..\Protocol\MessageGeneric.cpp" />
     <ClCompile Include="..\Protocol\MessageIdentity.cpp" />
     <ClCompile Include="..\Protocol\MessageRequestDir.cpp" />
     <ClCompile Include="..\Protocol\MessageRequestFile.cpp" />
-    <ClCompile Include="..\Protocol\MessageRequestSysInfo.cpp" />
     <ClCompile Include="..\Protocol\MessageResponseDir.cpp" />
     <ClCompile Include="..\Protocol\MessageResponseFile.cpp" />
     <ClCompile Include="..\Protocol\MessageResponseSysInfo.cpp" />
@@ -114,6 +117,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Service.cpp" />
+    <ClCompile Include="SysInfoCollector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,12 +13,12 @@ FileWriter::~FileWriter()
 	close();
 }
 
-bool FileWriter::open(const std::string& name)
+bool FileWriter::open(const std::wstring& name)
 {
 	if (!name.empty() && (m_name != name))
 	{
 		close();
-		if (fopen_s(&m_file, name.c_str(), "wb") == 0)
+		if (_wfopen_s(&m_file, name.c_str(), L"wb") == 0)
 		{
 			m_name = name;
 		}

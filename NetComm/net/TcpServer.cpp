@@ -125,7 +125,7 @@ TcpServer::runAcceptor()
         int connfd = ::accept(m_listenSocket, (struct sockaddr*)NULL, NULL);
 		if (SOCKET_ERROR != connfd)
 		{
-			TStreamPtr stream = new TcpStream(connfd);
+			TStreamPtr stream = std::make_shared<TcpStream>(connfd);
 
 			if (m_delegate)
 				m_delegate->onStreamCreated(stream);

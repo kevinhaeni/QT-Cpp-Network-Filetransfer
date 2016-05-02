@@ -15,7 +15,8 @@ public:
 		MSG_REQUEST_SYSINFO,
 		MSG_RESPONSE_SYSINFO,
 		MSG_UPLOAD_FILE,
-		MSG_UPLOAD_FILE_REPLY
+		MSG_UPLOAD_FILE_REPLY,
+		MSG_GENERIC
 	};
 
 	virtual ::msg::TMessagePtr createMessage(util::T_UI4 messageType);

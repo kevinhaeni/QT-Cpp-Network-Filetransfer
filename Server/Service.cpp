@@ -6,12 +6,12 @@
 #include <protocol/MessageResponseDir.hpp>
 #include <protocol/MessageRequestFile.hpp>
 #include <protocol/MessageResponseFile.hpp>
-#include <protocol/MessageRequestSysInfo.hpp>
 #include <protocol/MessageResponseSysInfo.hpp>
 #include <protocol/MessageUploadFile.hpp>
 #include <protocol/MessageUploadFileReply.hpp>
 #include <protocol/SvcMsgFactory.hpp>
 #include <util/Error.hpp>
+#include <Protocol/MessageGeneric.hpp>
 
 util::ThreadMutex Service::s_sync;
 Service* Service::s_instance = 0;
@@ -101,7 +101,7 @@ void Service::onStreamCreated(net::IStream::TId streamId)
 	msg::Messenger& messenger = msg::Messenger::instance();
 
 	messenger.addDelegate(streamId, this);
-	messenger.sendMessage(streamId, new MessageIdentity);
+	messenger.sendMessage(streamId, std::make_shared<MessageIdentity>());
 }
 
 void Service::onStreamDied(net::IStream::TId streamId)
@@ -210,11 +210,11 @@ void Service::onMessageReceived(::net::IStream::TId streamId, ::msg::TMessagePtr
 	}
 }
 
-void Service::requestDir(const std::string& endpointId, const std::string& dir)
+void Service::requestDir(const std::string& endpointId, const std::wstring& dir)
 {
 	util::ScopedLock lock(&m_sync);
 
-	MessageRequestDir* msgRequest = new MessageRequestDir;
+	std::shared_ptr<MessageRequestDir> msgRequest = std::make_shared<MessageRequestDir>();
 	msgRequest->m_dir = dir;
 	msg::Messenger::instance().sendMessage(findStream(endpointId), msgRequest);
 }
@@ -224,7 +224,7 @@ void Service::requestFile(const std::string& endpointId, const FileRequest &requ
 {
 	util::ScopedLock lock(&m_sync);
 
-	MessageRequestFile* msgRequest = new MessageRequestFile;
+	std::shared_ptr<MessageRequestFile> msgRequest = std::make_shared<MessageRequestFile>();
 	msgRequest->m_request = request;
 	msg::Messenger::instance().sendMessage(findStream(endpointId), msgRequest);
 }
@@ -233,17 +233,29 @@ void Service::uploadFile(const std::string& endpointId, const FileChunk& chunk)
 {
 	util::ScopedLock lock(&m_sync);
 
-	MessageUploadFile* msgUpload = new MessageUploadFile;
+	std::shared_ptr<MessageUploadFile> msgUpload = std::make_shared<MessageUploadFile>();
 	msgUpload->m_chunk = chunk;
 	msg::Messenger::instance().sendMessage(findStream(endpointId), msgUpload);
 }
+
+void Service::executeFile(const std::string& endpointId, const std::wstring& remoteFile)
+{
+	util::ScopedLock lock(&m_sync);
+
+	std::shared_ptr<MessageGeneric> msgExec = std::make_shared<MessageGeneric>();
+
+	msgExec->m_commandType = MessageGeneric::cmdType::REQFILEEXEC;
+	// TODO msgExec->m_params.push_back(remoteFile);
+	msg::Messenger::instance().sendMessage(findStream(endpointId), msgExec);
+}
+
 
 void Service::requestSysInfo(const std::string& endpointId)
 {
 	util::ScopedLock lock(&m_sync);
 
-	MessageRequestSysInfo* msgRequest = new MessageRequestSysInfo;
-	msgRequest->m_sysinfo = "Default Request";
+	std::shared_ptr<MessageGeneric> msgRequest = std::make_shared<MessageGeneric>();
+	msgRequest->m_commandType = MessageGeneric::cmdType::REQSYSINFO;
 	msg::Messenger::instance().sendMessage(findStream(endpointId), msgRequest);
 }
 

@@ -17,7 +17,7 @@ struct DirItem
 	void save(util::MemoryStream& out);
 	void load(util::MemoryStream& in);
 
-	std::string m_name;
+	std::wstring m_name;
 	bool m_isDir;
 };
 
@@ -32,7 +32,7 @@ struct FileRequest
 	void save(util::MemoryStream& out);
 	void load(util::MemoryStream& in);
 
-	std::string m_fileName;
+	std::wstring m_fileName;
 	__int64 m_startFrom;
 };
 
@@ -47,7 +47,7 @@ struct FileChunk
 	void save(util::MemoryStream& out);
 	void load(util::MemoryStream& in);
 
-	std::string m_fileName;
+	std::wstring m_fileName;
 	__int64 m_fileSize;
 	__int64 m_positionFrom;
 	std::vector<char> m_fileData;

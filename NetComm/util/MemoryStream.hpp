@@ -32,7 +32,7 @@ public:
 	MemoryStream& operator <<(std::basic_string<T> s) {
 		size_t len = s.length();
 		writePrimitive(len);
-		write(reinterpret_cast<const unsigned char*>(s.c_str()), len * sizeof(T));
+		write(reinterpret_cast<const unsigned char*>(s.data()), len * sizeof(T));
 	}
 
 	template<typename T>

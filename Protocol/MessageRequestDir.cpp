@@ -12,22 +12,30 @@ MessageRequestDir::MessageRequestDir()
 void
 MessageRequestDir::save(TOStream& out)
 {
-	const char* szDir = m_dir.c_str();
+	
+	size_t len = m_dir.size();
+	out << len;
+
+	size_t sz = m_dir.size()  * sizeof(wchar_t);
+	out << sz;
+	if (sz)
+		out.write((const unsigned char*)m_dir.c_str(), sz);	
+	/*const char* szDir = m_dir.c_str();
 	unsigned int lenDir = m_dir.length();
 	out << lenDir;
-	out.write(reinterpret_cast<const unsigned char*>(szDir), lenDir);
+	out.write(reinterpret_cast<const unsigned char*>(szDir), lenDir);*/
 }
 
 void
 MessageRequestDir::load(TIStream& in)
 {
-	unsigned int lenDir = 0;
-	in >> lenDir;
+	size_t len;
+	in >> len;
+	m_dir.resize(len);
 
-	util::ScopedArray<char> buf(new char[lenDir + 1]);
-	memset(buf.get(), 0, lenDir + 1);
+	size_t sz;
+	in >> sz;
 
-	in.read(reinterpret_cast<unsigned char*>(buf.get()), lenDir);
-
-	m_dir = buf.get();
+	if (sz)
+		in.read((unsigned char*)&m_dir.front(), sz);
 }

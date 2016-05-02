@@ -13,14 +13,14 @@ public:
 	FileReader();
 	~FileReader();
 
-	bool open(const std::string& name);
+	bool open(const std::wstring& name);
 	void close();
 	bool read(std::vector<char>& buf, __int64 startFrom, int size);
 	__int64 size() const;
 
 private:
 	FILE* m_file;
-	std::string m_name;
+	std::wstring m_name;
 	__int64 m_size;
 };
 

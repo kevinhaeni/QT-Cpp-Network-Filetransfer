@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <util/SharedPtr.hpp>
+#include <memory>
 #include "IStream.hpp"
 
 namespace net {
@@ -32,6 +32,7 @@ struct IBinding
 		IBindingDelegate* delegate_) = 0;
 };
 
-typedef ::util::SharedPtr<IBinding> TBindingPtr;
+//typedef ::util::SharedPtr<IBinding> TBindingPtr;
+typedef std::shared_ptr<IBinding> TBindingPtr;
 
 } // namespace net

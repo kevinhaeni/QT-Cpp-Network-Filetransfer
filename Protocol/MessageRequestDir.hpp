@@ -11,5 +11,5 @@ public:
 	virtual void save(TOStream& out);
 	virtual void load(TIStream& in);
 
-	std::string m_dir;
+	std::wstring m_dir;
 };

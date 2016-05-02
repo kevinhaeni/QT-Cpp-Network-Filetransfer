@@ -13,7 +13,10 @@
 
 #include <QWidget>
 
-#include <util/SharedPtr.hpp>
+
+#include "util/utils.h"
+#include "util/ThreadMutex.hpp"
+#include "util/ScopedLock.hpp"
 #include <util/Error.hpp>
 #include <util/FileReader.hpp>
 #include <util/FileWriter.hpp>
@@ -56,8 +59,10 @@ private slots:
 	void onRequestDirClicked();
 	void onDownloadFileClicked();
 	void onUploadFileClicked();
+	void onExecuteFileClicked();
 	void onLocalFileSystemActivated(const QModelIndex& index);
 	void onDirRemoteItemActivated(QListWidgetItem*);
+
 
 	void updateDir();
 	void updateFile(qlonglong position, qlonglong total);
@@ -65,8 +70,9 @@ private slots:
 	void stopFileTransmission();
 
 private:
-	void startFileDownload(const std::string& remoteFileName, const std::string& localPath);
-	void startFileUpload(const std::string& localFileName);
+	void startFileDownload(const std::wstring& remoteFileName, const std::wstring& localPath);
+	void startFileExecution(const std::wstring& remoteFileName);
+	void startFileUpload(const std::wstring& localFileName);
 
 private:
 	Ui::FileTransferWindow ui;
@@ -76,8 +82,8 @@ private:
 
 	TDirItems m_dirContent;
 	
-	std::string m_remoteFileName;
-	std::string m_localFileName;
+	std::wstring m_remoteFileName;
+	std::wstring m_localFileName;
 	__int64 m_transferringFileSize;
 	__int64 m_transferringFilePosition;
 	util::FileReader m_fileReader;

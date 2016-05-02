@@ -56,6 +56,12 @@
     <ClInclude Include="..\Protocol\MessageUploadFileReply.hpp">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
+    <ClInclude Include="..\Protocol\MessageGeneric.hpp">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="SysInfoCollector.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -74,9 +80,6 @@
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
     <ClCompile Include="..\Protocol\MessageRequestFile.cpp">
-      <Filter>Source Files\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Protocol\MessageRequestSysInfo.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
     <ClCompile Include="..\Protocol\MessageResponseDir.cpp">
@@ -99,6 +102,12 @@
     </ClCompile>
     <ClCompile Include="..\Protocol\DataTypes.cpp">
       <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Protocol\MessageGeneric.cpp">
+      <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="SysInfoCollector.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

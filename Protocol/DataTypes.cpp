@@ -4,7 +4,10 @@
 
 void DirItem::save(util::MemoryStream& out)
 {
-	size_t sz = m_name.size();
+	size_t len = m_name.size();
+	out << len;
+
+	size_t sz = m_name.size()  * sizeof(wchar_t);
 	out << sz;
 	if (sz)
 		out.write((const unsigned char*)m_name.c_str(), sz);
@@ -13,9 +16,13 @@ void DirItem::save(util::MemoryStream& out)
 
 void DirItem::load(util::MemoryStream& in)
 {
+	size_t len;
+	in >> len;
+	m_name.resize(len);
+		
 	size_t sz;
 	in >> sz;
-	m_name.resize(sz);
+	
 	if (sz)
 		in.read((unsigned char*)&m_name.front(), sz);
 	in >> m_isDir;
@@ -24,7 +31,10 @@ void DirItem::load(util::MemoryStream& in)
 
 void FileRequest::save(util::MemoryStream& out)
 {
-	size_t sz = m_fileName.size();
+	size_t len = m_fileName.size();
+	out << len;
+
+	size_t sz = m_fileName.size() * sizeof(wchar_t);
 	out << sz;
 	if (sz)
 		out.write((const unsigned char*)m_fileName.c_str(), sz);
@@ -34,9 +44,12 @@ void FileRequest::save(util::MemoryStream& out)
 
 void FileRequest::load(util::MemoryStream& in)
 {
+	size_t len;
+	in >> len;
+	m_fileName.resize(len);
+
 	size_t sz;
 	in >> sz;
-	m_fileName.resize(sz);
 	if (sz)
 		in.read((unsigned char*)&m_fileName.front(), sz);
 
@@ -46,7 +59,10 @@ void FileRequest::load(util::MemoryStream& in)
 
 void FileChunk::save(util::MemoryStream& out)
 {
-	size_t sz = m_fileName.size();
+	size_t len = m_fileName.size();
+	out << len;
+
+	size_t sz = m_fileName.size() * sizeof(wchar_t);
 	out << sz;
 	if (sz)
 		out.write((const unsigned char*)m_fileName.c_str(), sz);
@@ -61,9 +77,13 @@ void FileChunk::save(util::MemoryStream& out)
 
 void FileChunk::load(util::MemoryStream& in)
 {
+	size_t len;
+	in >> len;
+	m_fileName.resize(len);
+	
 	size_t sz;
 	in >> sz;
-	m_fileName.resize(sz);
+	
 	if (sz)
 		in.read((unsigned char*)&m_fileName.front(), sz);
 

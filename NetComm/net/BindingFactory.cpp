@@ -23,10 +23,10 @@ BindingFactory::createBinding(
 	switch (bindingType)
 	{
 	case BINDING_TCP_SERVER:
-		binding = new TcpServer;
+		binding = std::make_shared<TcpServer>();
 		break;
 	case BINDING_TCP_CLIENT:
-		binding = new TcpClient;
+		binding = std::make_shared<TcpClient>();
 		break;
 	default:
 		assert(!"Unknown binding type");
